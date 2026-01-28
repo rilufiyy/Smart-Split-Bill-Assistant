@@ -52,9 +52,6 @@ class ReportData:
             assignments = manager.get_participant_items_assignment_list(participant.id)
             
             # Reconstruct items list specifically for this participant
-            # Note: assigned_count currently seems to be 1 based on add_item_assignment in assignment_data.py
-            # But we should rely on assigned_count if logic changes
-            # For reported items, we probably want the items themselves.
             param_items = [
                 ItemData(
                     name=a.item.name,
@@ -65,10 +62,6 @@ class ReportData:
             ]
 
             # Calculate subtotal for this participant
-            # This logic assumes items are fully assigned to one person or duplicated for split?
-            # Looking at assignment_data.py, it stores reference to ItemData.
-            # If an item is split, usually we'd have fractional prices or handled differently.
-            # For now, let's assume simple assignment summing up item prices.
             participant_subtotal = sum(item.total_price for item in param_items)
             
             # Proportional distribution of others
@@ -88,5 +81,6 @@ class ReportData:
                     purchased_total=participant_total,
                 )
             )
+
 
         return cls(participants_reports=participants_reports)
