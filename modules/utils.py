@@ -56,9 +56,7 @@ def cleanup_text(text: str) -> str:
         return str(text)
         
     import re
-    # Remove things that look like tags <...>
-    # We use a non-greedy match.
-    # Note: Florence-2 or Donut might produce tags like <s_name>, </s_name>, <sep/>
     clean = re.sub(r'<[^>]+>', '', text)
     
+
     return clean.strip()
