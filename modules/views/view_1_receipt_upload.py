@@ -125,7 +125,7 @@ def image_preview_view(image: Image.Image) -> None:
     Args:
         image (Image.Image): the uploaded image
     """
-    st.image(resize_to_height(image, IMAGE_DISPLAY_HEIGHT), width="stretch")
+    st.image(resize_to_height(image, IMAGE_DISPLAY_HEIGHT), use_container_width=True)
 
 
 def final_receipt_view() -> None:
