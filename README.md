@@ -72,11 +72,6 @@ SmartSplit Bill AI
    * Multimodal (text + layout + vision)
    * Akurasi tinggi, namun inference relatif lebih lambat
 
-3. **Gemini (API-based LLM)**
-
-   * Parsing berbasis vision-language model
-   * Sangat fleksibel untuk reasoning & data cleaning
-
 ---
 
 ## Contoh Hasil Ekstraksi Bill
