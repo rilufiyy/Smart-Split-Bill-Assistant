@@ -7,20 +7,14 @@ services:
     ports:
       - "8501:8501"
     environment:
-      # Set your Google API Key directly here (no .env file needed)
       - GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY_HERE
-      # Hugging Face cache configuration
       - HF_HOME=/root/.cache/huggingface
       - TRANSFORMERS_CACHE=/root/.cache/huggingface/transformers
-      # Tesseract configuration
       - TESSERACT_CMD=tesseract
-      # HTTP timeout for model downloads (5 minutes)
       - HF_HUB_DOWNLOAD_TIMEOUT=300
       - HTTPX_TIMEOUT=300
     volumes:
-      # Persist Hugging Face model cache to avoid re-downloading models
       - huggingface-cache:/root/.cache/huggingface
-      # Optional: Map current directory for development (comment out for production)
       - .:/app
     restart: unless-stopped
     healthcheck:
@@ -29,15 +23,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-    # Optional: Resource limits (uncomment for production)
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '2'
-    #       memory: 4G
-    #     reservations:
-    #       cpus: '1'
-    #       memory: 2G
 
 volumes:
   huggingface-cache:
