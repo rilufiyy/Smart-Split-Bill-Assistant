@@ -11,26 +11,21 @@ from huggingface_hub import HfApi
 from .base import AIModel
 
 import os
-# =========================
+
 # TESSERACT PATH CONFIGURATION
-# =========================
-# Support both Windows and Linux (Docker)
 tesseract_path = os.getenv("TESSERACT_CMD")
 if tesseract_path is None:
-    # Auto-detect based on OS
-    if os.name == 'nt':  # Windows
+    if os.name == 'nt':  
         tesseract_path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    else:  # Linux/Mac (Docker)
-        tesseract_path = "tesseract"  # Use system PATH
+    else: 
+        tesseract_path = "tesseract"  
 
 pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
-# =========================
 # HTTP TIMEOUT CONFIGURATION
-# =========================
 # Increase timeout for downloading large models from Hugging Face
-os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "300")  # 5 minutes
-os.environ.setdefault("HTTPX_TIMEOUT", "300")  # 5 minutes
+os.environ.setdefault("HF_HUB_DOWNLOAD_TIMEOUT", "300")  
+os.environ.setdefault("HTTPX_TIMEOUT", "300")  
 
 MODEL_NAME = "microsoft/layoutlmv3-base"
 
@@ -48,7 +43,7 @@ class LayoutLMv3ReceiptModel(AIModel):
 
         # Load with retry mechanism and increased timeout
         max_retries = 3
-        retry_delay = 5  # seconds
+        retry_delay = 5 
         
         for attempt in range(max_retries):
             try:
@@ -67,7 +62,7 @@ class LayoutLMv3ReceiptModel(AIModel):
                 self.model.eval()
                 
                 print("LayoutLMv3 model loaded successfully!")
-                break  # Success, exit retry loop
+                break  
                 
             except Exception as e:
                 if attempt < max_retries - 1:
@@ -84,23 +79,19 @@ class LayoutLMv3ReceiptModel(AIModel):
                         f"Last error: {str(e)}"
                     ) from e
 
-    # =========================
     # PUBLIC API
-    # =========================
     def run(self, image):
         if isinstance(image, str):
             image = Image.open(image).convert("RGB")
 
         words, boxes = self._ocr(image)
 
-        # LayoutLMv3 forward (optional)
+        # LayoutLMv3 forward 
         self._layoutlm_forward(image, words, boxes)
 
         return self._parse(words, boxes)
 
-    # =========================
     # OCR
-    # =========================
     def _ocr(self, image):
         data = pytesseract.image_to_data(image, output_type=Output.DICT)
 
@@ -123,9 +114,7 @@ class LayoutLMv3ReceiptModel(AIModel):
 
         return words, boxes
 
-    # =========================
     # LayoutLMv3 FORWARD
-    # =========================
     def _layoutlm_forward(self, image, words, boxes):
         """
         LayoutLMv3 forward pass
@@ -133,9 +122,7 @@ class LayoutLMv3ReceiptModel(AIModel):
         """
         pass
 
-    # =========================
     # GROUP WORDS BY LINE
-    # =========================
     def _group_by_line(self, words, boxes, y_thresh=15):
         lines = []
         current = []
@@ -155,9 +142,7 @@ class LayoutLMv3ReceiptModel(AIModel):
 
         return lines
 
-    # =========================
     # MAIN PARSER
-    # =========================
     def _parse(self, words, boxes):
         from modules.data.receipt_data import ReceiptData
 
@@ -169,12 +154,12 @@ class LayoutLMv3ReceiptModel(AIModel):
         for line in lines:
             low = line.lower()
 
-            # ===== TOTAL / TAGIHAN =====
+            # TOTAL / TAGIHAN 
             if any(k in low for k in ["total", "tagihan", "grand total"]):
                 total = self._extract_amount(line)
                 continue
 
-            # ===== ITEM =====
+            # ITEM 
             item = self._parse_item(line)
             if item:
                 items.append(item)
@@ -188,9 +173,7 @@ class LayoutLMv3ReceiptModel(AIModel):
             total=total
         )
 
-    # =========================
     # ITEM PARSER
-    # =========================
     def _parse_item(self, line):
         from modules.data.receipt_data import ItemData
 
@@ -228,9 +211,7 @@ class LayoutLMv3ReceiptModel(AIModel):
         except Exception:
             return None
 
-    # =========================
     # UTILS
-    # =========================
     def _extract_amount(self, text):
         nums = re.findall(r"\d+(?:[.,]\d+)?", text)
         return self._to_float(nums[-1]) if nums else 0.0
@@ -252,5 +233,6 @@ class LayoutLMv3ReceiptModel(AIModel):
             val = val.replace(",", ".")
         else:
             val = val.replace(".", "").replace(",", ".")
+
 
         return float(val)
